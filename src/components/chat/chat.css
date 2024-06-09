@@ -59,7 +59,7 @@
         overflow: scroll;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 5px;
         scrollbar-width: thin;
         scrollbar-color: rgba(17, 25, 40, 0.4) transparent;
 
@@ -73,7 +73,7 @@
 
                 .texts{
                     p{
-                        background-color: #5183fe;
+                        background-color: #5182fe50;
                     }
                 }
             }
@@ -126,8 +126,8 @@
                     position: absolute;
                     top: 0;
                     bottom: 0;
-                    width: 5px; /* Width of the bar */
-                    background-color: #4e4f53; /* Choose your preferred bar color */
+                    width: 5px;
+                    background-color: #afaf15; /* Choose your preferred bar color */
                     border-radius: 5px; /* Adjust as needed */
                   }
                   

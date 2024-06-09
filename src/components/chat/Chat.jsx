@@ -8,8 +8,9 @@ import { useChatStore } from '../../lib/chatStore';
 import { useUserStore } from '../../lib/userStore';
 import upload from '../../lib/upload';
 import uploadVideo from '../../lib/uploadVideo';
+import Detail from '../detail/Detail';
 
-const Chat = () => {
+const Chat = ({ onToggleDetail }) => {
   const [open, setOpen] = useState(false);
   const [chat, setChat] = useState();
   const [message, setMessage] = useState('');
@@ -24,7 +25,7 @@ const Chat = () => {
   });
   const { chatId, user } = useChatStore();
   const { currentUser } = useUserStore();
-
+  const [detailVisible, setDetailVisible] = useState(false);
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -138,6 +139,10 @@ const Chat = () => {
     });
   };
 
+  const toggleDetailVisibility = () => {
+    setDetailVisible((prev) => !prev);
+  };
+
   return (
     <div className='chat'>
       <div className="top">
@@ -150,41 +155,41 @@ const Chat = () => {
         <div className="icons">
           <img src="./phone.png" alt="" />
           <img src="./video.png" alt="" />
-          <img src="info.png" alt="" />
+          <img src="info.png" alt="" onClick={onToggleDetail} />
         </div>
       </div>
 
       <div className="center">
-      {chat?.messages?.map((message, index) => (
-        <div
-          className={`message ${message.sendId === currentUser.id ? "own" : ""}`}
-          key={index}
-          onClick={() => setReplyTo(message)}
-        >
-          <div className="texts">
-            {message.img && <img src={message.img} alt="" />}
-            {message.replyTo && (
-              <div className={`reply ${message.sendId === currentUser.id ? 'left' : 'right'}`}>
-                <p><strong>Replying to:</strong> {message.replyTo.text}</p>
-              </div>
-            )}
-            <p>{message.text}</p>
-            {index === chat.messages.length - 1 && (
-              <span>{formatDistanceToNow(new Date(message.createdAt.seconds * 1000))} ago</span>
-            )}
+        {chat?.messages?.map((message, index) => (
+          <div
+            className={`message ${message.sendId === currentUser.id ? "own" : ""}`}
+            key={index}
+            onClick={() => setReplyTo(message)}
+          >
+            <div className="texts">
+              {message.img && <img src={message.img} alt="" />}
+              {message.replyTo && (
+                <div className={`reply ${message.sendId === currentUser.id ? 'left' : 'right'}`}>
+                  <p><strong>Replying to:</strong> {message.replyTo.text}</p>
+                </div>
+              )}
+              <p>{message.text}</p>
+              {index === chat.messages.length - 1 && (
+                <span>{formatDistanceToNow(new Date(message.createdAt.seconds * 1000))} ago</span>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
         {img.url && (
-          <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`}>
+          <div className="message own">
             <div className="texts">
               <img src={img.url} alt="" />
             </div>
           </div>
         )}
         {vid.url && (
-          <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`}>
+          <div className="message own">
             <div className="texts">
               <video src={vid.url} controls />
             </div>

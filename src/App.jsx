@@ -1,30 +1,34 @@
-import { useEffect } from "react"
-import Chat from "./components/chat/Chat"
-import Detail from "./components/detail/Detail"
-import List from "./components/list/List"
-import Login from "./components/login/Login"
-import Notification from "./components/notification/Notification"
-import { onAuthStateChanged } from "firebase/auth"
-import { auth } from "./lib/firebase"
-import { useUserStore } from "./lib/userStore"
-import { useChatStore } from "./lib/chatStore"
+import { useEffect, useState } from "react";
+import Chat from "./components/chat/Chat";
+import Detail from "./components/detail/Detail";
+import List from "./components/list/List";
+import Login from "./components/login/Login";
+import Notification from "./components/notification/Notification";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./lib/firebase";
+import { useUserStore } from "./lib/userStore";
+import { useChatStore } from "./lib/chatStore";
 
 const App = () => {
+  const { currentUser, isLoading, fetchUserInfo } = useUserStore();
+  const { chatId } = useChatStore();
+  const [detailVisible, setDetailVisible] = useState(false);
 
-  const {currentUser, isLoading, fetchUserInfo} = useUserStore()
-  const {chatId} = useChatStore();
-  
-  useEffect(()=>{
-    const unSub = onAuthStateChanged(auth,(user)=>{
-      fetchUserInfo(user?.uid)
+  useEffect(() => {
+    const unSub = onAuthStateChanged(auth, (user) => {
+      fetchUserInfo(user?.uid);
     });
 
-    return ()=>{
+    return () => {
       unSub();
     };
-  },[fetchUserInfo]);
+  }, [fetchUserInfo]);
 
-  if (isLoading) return <div className="loading">Loading...</div>
+  const toggleDetailVisibility = () => {
+    setDetailVisible((prev) => !prev);
+  };
+
+  if (isLoading) return <div className="loading">Loading...</div>;
 
   return (
     <div className='container'>
@@ -32,14 +36,14 @@ const App = () => {
         currentUser ? (
         <>
           <List/>
-          {chatId && <Chat/>}
-          {chatId && <Detail/>}
+          {chatId && <Chat onToggleDetail={toggleDetailVisibility} />}  {/* Pass the toggle function */}
+          {chatId && detailVisible && <Detail />}  {/* Conditionally render the Detail component */}
         </>
         ) : (<Login />)
       }
       <Notification/>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
