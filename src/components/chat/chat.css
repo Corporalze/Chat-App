@@ -59,7 +59,7 @@
         overflow: scroll;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 10px;
         scrollbar-width: thin;
         scrollbar-color: rgba(17, 25, 40, 0.4) transparent;
 
@@ -114,6 +114,31 @@
                 span{
                     font-size: 13px;
                 }
+
+                .reply {
+                    padding: 5px; /* Adjust padding as needed */
+                    max-width: 96%; /* Adjust max-width as needed */
+                    position: relative; /* Required for positioning the bar */
+                  }
+                  
+                  .reply:before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    width: 5px; /* Width of the bar */
+                    background-color: #4e4f53; /* Choose your preferred bar color */
+                    border-radius: 5px; /* Adjust as needed */
+                  }
+                  
+                  .reply.right:before {
+                    right: 100%; /* Position the bar on the right side */
+                  }
+                  
+                  .reply.left:before {
+                    left: 100%; /* Position the bar on the left side */
+                  }
+                  
             }
         }
     }

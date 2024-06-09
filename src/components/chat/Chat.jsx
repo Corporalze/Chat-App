@@ -155,24 +155,27 @@ const Chat = () => {
       </div>
 
       <div className="center">
-        {chat?.messages?.map((message, index) => (
-          <div
-            className={`message ${message.sendId === currentUser.id ? "own" : ""}`}
-            key={index}
-            onClick={() => setReplyTo(message)}
-          >
-            <div className="texts">
-              {message.img && <img src={message.img} alt="" />}
-              {message.replyTo && (
-                <div className="reply">
-                  <p><strong>Replying to:</strong> {message.replyTo.text}</p>
-                </div>
-              )}
-              <p>{message.text}</p>
+      {chat?.messages?.map((message, index) => (
+        <div
+          className={`message ${message.sendId === currentUser.id ? "own" : ""}`}
+          key={index}
+          onClick={() => setReplyTo(message)}
+        >
+          <div className="texts">
+            {message.img && <img src={message.img} alt="" />}
+            {message.replyTo && (
+              <div className={`reply ${message.sendId === currentUser.id ? 'left' : 'right'}`}>
+                <p><strong>Replying to:</strong> {message.replyTo.text}</p>
+              </div>
+            )}
+            <p>{message.text}</p>
+            {index === chat.messages.length - 1 && (
               <span>{formatDistanceToNow(new Date(message.createdAt.seconds * 1000))} ago</span>
-            </div>
+            )}
           </div>
-        ))}
+        </div>
+      ))}
+
         {img.url && (
           <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`}>
             <div className="texts">
