@@ -2,15 +2,26 @@ import React, { useEffect, useRef, useState } from 'react';
 import "./chat.css";
 import EmojiPicker from 'emoji-picker-react';
 import { arrayUnion, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { formatDistanceToNow } from 'date-fns';
 import { db } from '../../lib/firebase';
 import { useChatStore } from '../../lib/chatStore';
 import { useUserStore } from '../../lib/userStore';
-import { formatDistanceToNow } from 'date-fns';
+import upload from '../../lib/upload';
+import uploadVideo from '../../lib/uploadVideo';
 
 const Chat = () => {
   const [open, setOpen] = useState(false);
   const [chat, setChat] = useState();
   const [message, setMessage] = useState('');
+  const [replyTo, setReplyTo] = useState(null);
+  const [img, setImg] = useState({
+    file:null,
+    url:"",
+  })
+  const [vid, setVid] = useState({
+    file:null,
+    url:"",
+  })
   const { chatId, user } = useChatStore();
   const { currentUser } = useUserStore();
 
@@ -32,21 +43,60 @@ const Chat = () => {
     };
   }, [chatId]);
 
+  const handleImg = (e) =>{
+    if(e.target.files[0]){
+        setImg({
+            file:e.target.files[0],
+            url: URL.createObjectURL(e.target.files[0])
+        })   
+    }
+}
+const handleVid = (e) =>{
+  if(e.target.files[0]){
+      setVid({
+          file:e.target.files[0],
+          url: URL.createObjectURL(e.target.files[0])
+      })   
+  }
+}
+
   const handleEmoji = (e) => {
     setMessage((prev) => prev + e.emoji);
     setOpen(false);
   };
 
-  const handleSend = async () => {
+  const handleSend = async (e) => {
+    if (e) {
+      e.preventDefault();
+    }
+
     if (message === "") return;
 
+    let imgUrl = null
+    let vidUrl = null
+
     try {
+
+      if (img.file) {
+        imgUrl = await upload(img.file)
+      }
+      if(vid.file){
+        vidUrl = await uploadVideo(vid.file)
+      }
+      const newMessage = {
+        sendId: currentUser.id,
+        text: message,
+        createdAt: new Date(),
+        ...(imgUrl && {img: imgUrl}),
+        ...(vidUrl && {video: vidUrl}),
+      };
+
+      if (replyTo) {
+        newMessage.replyTo = replyTo;
+      }
+
       await updateDoc(doc(db, "chats", chatId), {
-        messages: arrayUnion({
-          sendId: currentUser.id,
-          text: message,
-          createdAt: new Date(),
-        })
+        messages: arrayUnion(newMessage)
       });
 
       const userIDs = [currentUser.id, user.id];
@@ -85,17 +135,25 @@ const Chat = () => {
         });
       }
 
-      // Clear the message input after sending
       setMessage('');
+      setReplyTo(null);
 
     } catch (err) {
       console.log(err);
     }
+
+    setImg({
+      file: null,
+      url: ""
+    })
+    setVid({
+      file: null,
+      url: "",
+    });
   };
 
   return (
     <div className='chat'>
-
       <div className="top">
         <div className="user">
           <img src="./avatar.png" alt="" />
@@ -113,21 +171,55 @@ const Chat = () => {
 
       <div className="center">
         {chat?.messages?.map((message, index) => (
-          <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`} key={index}>
+          <div 
+            className={`message ${message.sendId === currentUser.id ? "own" : ""}`} 
+            key={index} 
+            onClick={() => setReplyTo(message)}
+          >
             <div className="texts">
               {message.img && <img src={message.img} alt="" />}
+              {message.replyTo && (
+                <div className="reply">
+                  <p><strong>Replying to:</strong> {message.replyTo.text}</p>
+                </div>
+              )}
               <p>{message.text}</p>
               <span>{formatDistanceToNow(new Date(message.createdAt.seconds * 1000))} ago</span>
             </div>
           </div>
         ))}
+        {img.url && (
+          <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`}>
+          <div className="texts">
+            <img src={img.url} alt="" />
+          </div>
+        </div>
+      )}
+      {vid.url && (
+        <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`}>
+          <div className="texts">
+            <video src={vid.url} controls />
+          </div>
+        </div>
+      )}
         <div ref={endRef}></div>
       </div>
 
       <div className="bottom">
+        {replyTo && (
+          <div className="replying">
+          <p>Reply: {replyTo.text.length > 19 ? replyTo.text.substring(0, 19) + '...' : replyTo.text} <span onClick={() => setReplyTo(null)}>Cancel</span></p>
+        </div>
+        )}
         <div className="icons">
-          <img src="./img.png" alt="" />
-          <img src="./camera.png" alt="" />
+          <label htmlFor="file">
+            <img src="./img.png" alt="" />
+          </label>
+          <input type="file" id='file' style={{display:"none"}} onChange={handleImg} />
+          <label htmlFor="vid">
+            <img src="./camera.png" alt="" />
+          </label>
+          <input type="file" id='vid' style={{display:"none"}} onChange={handleVid} />
           <img src="./mic.png" alt="" />
         </div>
         <input
