@@ -1,15 +1,14 @@
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "./firebase";
-import crypto from 'crypto';
+import CryptoJS from 'crypto-js';
 
-const hashFile = (file) => {
+const hashFile = async (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const buffer = e.target.result;
-      const hash = crypto.createHash('sha256');
-      hash.update(new Uint8Array(buffer));
-      resolve(hash.digest('hex'));
+      const wordArray = CryptoJS.lib.WordArray.create(e.target.result);
+      const hash = CryptoJS.SHA256(wordArray).toString();
+      resolve(hash);
     };
     reader.onerror = (err) => {
       reject(err);

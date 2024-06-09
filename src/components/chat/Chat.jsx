@@ -15,13 +15,13 @@ const Chat = () => {
   const [message, setMessage] = useState('');
   const [replyTo, setReplyTo] = useState(null);
   const [img, setImg] = useState({
-    file:null,
-    url:"",
-  })
+    file: null,
+    url: "",
+  });
   const [vid, setVid] = useState({
-    file:null,
-    url:"",
-  })
+    file: null,
+    url: "",
+  });
   const { chatId, user } = useChatStore();
   const { currentUser } = useUserStore();
 
@@ -43,22 +43,25 @@ const Chat = () => {
     };
   }, [chatId]);
 
-  const handleImg = (e) =>{
-    if(e.target.files[0]){
-        setImg({
-            file:e.target.files[0],
-            url: URL.createObjectURL(e.target.files[0])
-        })   
+  const handleImg = (e) => {
+    if (e.target.files[0]) {
+      setImg({
+        file: e.target.files[0],
+        url: URL.createObjectURL(e.target.files[0])
+      });
+      e.target.value = ''; // Clear the input value
     }
-}
-const handleVid = (e) =>{
-  if(e.target.files[0]){
+  };
+
+  const handleVid = (e) => {
+    if (e.target.files[0]) {
       setVid({
-          file:e.target.files[0],
-          url: URL.createObjectURL(e.target.files[0])
-      })   
-  }
-}
+        file: e.target.files[0],
+        url: URL.createObjectURL(e.target.files[0])
+      });
+      e.target.value = ''; // Clear the input value
+    }
+  };
 
   const handleEmoji = (e) => {
     setMessage((prev) => prev + e.emoji);
@@ -70,25 +73,24 @@ const handleVid = (e) =>{
       e.preventDefault();
     }
 
-    if (message === "") return;
+    if (message === "" && !img.file && !vid.file) return;
 
-    let imgUrl = null
-    let vidUrl = null
+    let imgUrl = null;
+    let vidUrl = null;
 
     try {
-
       if (img.file) {
-        imgUrl = await upload(img.file)
+        imgUrl = await upload(img.file);
       }
-      if(vid.file){
-        vidUrl = await uploadVideo(vid.file)
+      if (vid.file) {
+        vidUrl = await uploadVideo(vid.file);
       }
       const newMessage = {
         sendId: currentUser.id,
         text: message,
         createdAt: new Date(),
-        ...(imgUrl && {img: imgUrl}),
-        ...(vidUrl && {video: vidUrl}),
+        ...(imgUrl && { img: imgUrl }),
+        ...(vidUrl && { video: vidUrl }),
       };
 
       if (replyTo) {
@@ -119,22 +121,6 @@ const handleVid = (e) =>{
         }
       });
 
-      const userChatsRef = doc(db, "userChat", currentUser.id);
-      const userChatsSnapshot = await getDoc(userChatsRef);
-
-      if (userChatsSnapshot.exists()) {
-        const userChatData = userChatsSnapshot.data();
-        const chatIndex = userChatData.chats.findIndex(c => c.chatId === chatId);
-
-        userChatData.chats[chatIndex].lastMessage = message;
-        userChatData.chats[chatIndex].isSeen = true;
-        userChatData.chats[chatIndex].updatedAt = Date.now();
-
-        await updateDoc(userChatsRef, {
-          chats: userChatData.chats,
-        });
-      }
-
       setMessage('');
       setReplyTo(null);
 
@@ -145,7 +131,7 @@ const handleVid = (e) =>{
     setImg({
       file: null,
       url: ""
-    })
+    });
     setVid({
       file: null,
       url: "",
@@ -156,10 +142,9 @@ const handleVid = (e) =>{
     <div className='chat'>
       <div className="top">
         <div className="user">
-          <img src="./avatar.png" alt="" />
+          <img src={user?.avatar || "./avatar.png"} alt="" />
           <div className="texts">
-            <span>Ibtihaj Irfan</span>
-            <p>dumbass, sassy bitch, baby, princess</p>
+            <span>{user?.username || "Unknown User"}</span>
           </div>
         </div>
         <div className="icons">
@@ -171,9 +156,9 @@ const handleVid = (e) =>{
 
       <div className="center">
         {chat?.messages?.map((message, index) => (
-          <div 
-            className={`message ${message.sendId === currentUser.id ? "own" : ""}`} 
-            key={index} 
+          <div
+            className={`message ${message.sendId === currentUser.id ? "own" : ""}`}
+            key={index}
             onClick={() => setReplyTo(message)}
           >
             <div className="texts">
@@ -190,36 +175,36 @@ const handleVid = (e) =>{
         ))}
         {img.url && (
           <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`}>
-          <div className="texts">
-            <img src={img.url} alt="" />
+            <div className="texts">
+              <img src={img.url} alt="" />
+            </div>
           </div>
-        </div>
-      )}
-      {vid.url && (
-        <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`}>
-          <div className="texts">
-            <video src={vid.url} controls />
+        )}
+        {vid.url && (
+          <div className={`message ${message.sendId === currentUser.id ? "own" : ""}`}>
+            <div className="texts">
+              <video src={vid.url} controls />
+            </div>
           </div>
-        </div>
-      )}
+        )}
         <div ref={endRef}></div>
       </div>
 
       <div className="bottom">
         {replyTo && (
           <div className="replying">
-          <p>Reply: {replyTo.text.length > 19 ? replyTo.text.substring(0, 19) + '...' : replyTo.text} <span onClick={() => setReplyTo(null)}>Cancel</span></p>
-        </div>
+            <p>Reply: {replyTo.text.length > 19 ? replyTo.text.substring(0, 19) + '...' : replyTo.text} <span onClick={() => setReplyTo(null)}>Cancel</span></p>
+          </div>
         )}
         <div className="icons">
           <label htmlFor="file">
             <img src="./img.png" alt="" />
           </label>
-          <input type="file" id='file' style={{display:"none"}} onChange={handleImg} />
+          <input type="file" id='file' style={{ display: "none" }} onChange={handleImg} />
           <label htmlFor="vid">
             <img src="./camera.png" alt="" />
           </label>
-          <input type="file" id='vid' style={{display:"none"}} onChange={handleVid} />
+          <input type="file" id='vid' style={{ display: "none" }} onChange={handleVid} />
           <img src="./mic.png" alt="" />
         </div>
         <input
