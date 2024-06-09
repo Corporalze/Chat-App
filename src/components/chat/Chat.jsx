@@ -9,7 +9,7 @@ import { useUserStore } from '../../lib/userStore';
 import upload from '../../lib/upload';
 import uploadVideo from '../../lib/uploadVideo';
 
-const Chat = ({ onToggleDetail }) => {
+const Chat = ({ onToggleDetail, onToggleList }) => {
   const [open, setOpen] = useState(false);
   const [chat, setChat] = useState();
   const [message, setMessage] = useState('');
@@ -147,7 +147,7 @@ const Chat = ({ onToggleDetail }) => {
           </div>
         </div>
         <div className="icons">
-          <img src="./phone.png" alt="" />
+          <img src="phone.png" alt="" onClick={onToggleList}/>
           <img src="./video.png" alt="" />
           <img src="info.png" alt="" onClick={onToggleDetail} />
         </div>

@@ -13,6 +13,7 @@ const App = () => {
   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
   const { chatId } = useChatStore();
   const [detailVisible, setDetailVisible] = useState(false);
+  const [listVisible, setListVisible] = useState(true);
 
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
@@ -27,6 +28,9 @@ const App = () => {
   const toggleDetailVisibility = () => {
     setDetailVisible((prev) => !prev);
   };
+  const toggleListVisibility = () => {
+    setListVisible((prev) => !prev);
+  }
 
   if (isLoading) return <div className="loading">Loading...</div>;
 
@@ -35,8 +39,8 @@ const App = () => {
       {
         currentUser ? (
         <>
-          <List/>
-          {chatId && <Chat onToggleDetail={toggleDetailVisibility} />}  {/* Pass the toggle function */}
+          {listVisible && <List/>}
+          {chatId && <Chat onToggleDetail={toggleDetailVisibility} onToggleList={toggleListVisibility} />}  {/* Pass the toggle function */}
           {chatId && detailVisible && <Detail />}  {/* Conditionally render the Detail component */}
         </>
         ) : (<Login />)
