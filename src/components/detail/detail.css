@@ -2,6 +2,7 @@
     flex: 1;
     display: block;
     height: 100%;
+    align-items: center;
 
 
     .user{

@@ -8,7 +8,6 @@ import { useChatStore } from '../../lib/chatStore';
 import { useUserStore } from '../../lib/userStore';
 import upload from '../../lib/upload';
 import uploadVideo from '../../lib/uploadVideo';
-import Detail from '../detail/Detail';
 
 const Chat = ({ onToggleDetail }) => {
   const [open, setOpen] = useState(false);
@@ -25,7 +24,6 @@ const Chat = ({ onToggleDetail }) => {
   });
   const { chatId, user } = useChatStore();
   const { currentUser } = useUserStore();
-  const [detailVisible, setDetailVisible] = useState(false);
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -50,7 +48,7 @@ const Chat = ({ onToggleDetail }) => {
         file: e.target.files[0],
         url: URL.createObjectURL(e.target.files[0])
       });
-      e.target.value = ''; // Clear the input value
+      e.target.value = '';
     }
   };
 
@@ -60,7 +58,7 @@ const Chat = ({ onToggleDetail }) => {
         file: e.target.files[0],
         url: URL.createObjectURL(e.target.files[0])
       });
-      e.target.value = ''; // Clear the input value
+      e.target.value = '';
     }
   };
 
@@ -139,10 +137,6 @@ const Chat = ({ onToggleDetail }) => {
     });
   };
 
-  const toggleDetailVisibility = () => {
-    setDetailVisible((prev) => !prev);
-  };
-
   return (
     <div className='chat'>
       <div className="top">
@@ -170,7 +164,7 @@ const Chat = ({ onToggleDetail }) => {
               {message.img && <img src={message.img} alt="" />}
               {message.replyTo && (
                 <div className={`reply ${message.sendId === currentUser.id ? 'left' : 'right'}`}>
-                  <p><strong>Replying to:</strong> {message.replyTo.text}</p>
+                  <p>{message.replyTo.text}</p>
                 </div>
               )}
               <p>{message.text}</p>

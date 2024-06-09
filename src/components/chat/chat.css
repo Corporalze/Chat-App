@@ -117,7 +117,7 @@
 
                 .reply {
                     padding: 5px; /* Adjust padding as needed */
-                    max-width: 100%; /* Adjust max-width as needed */
+                    max-width: 98%; /* Adjust max-width as needed */
                     position: relative; /* Required for positioning the bar */
                   }
                   

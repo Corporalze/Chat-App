@@ -5,6 +5,7 @@ import { useUserStore } from '../../../lib/userStore';
 import { useChatStore } from '../../../lib/chatStore';
 import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { formatDistanceToNow } from 'date-fns';
 
 const ChatList = () => {
   const [addMode, setAddMode] = useState(false);
@@ -83,6 +84,7 @@ const ChatList = () => {
           <div className='texts'>
             <span>{chat.user.username}</span>
             <p>{chat.lastMessage}</p>
+            <p>{chat?.isSeen ? "seen" : "not seen"}</p>
           </div>
         </div>
       ))}
